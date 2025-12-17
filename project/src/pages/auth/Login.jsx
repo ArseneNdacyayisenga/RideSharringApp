@@ -46,9 +46,10 @@ const Login = () => {
   };
 
   return (
-    <div className="w-full card slide-up">
-      <div className="card-body">
-        <h2 className="text-2xl font-bold text-white mb-6">Welcome Back</h2>
+    <div className="w-full card glass-panel slide-up max-w-md mx-auto">
+      <div className="p-8">
+        <h2 className="text-3xl font-bold text-white mb-2 text-center">Welcome Back</h2>
+        <p className="text-dark-400 text-center mb-8">Sign in to your account</p>
 
         <form onSubmit={handleSubmit}>
           {/* Email Input */}
@@ -60,7 +61,7 @@ const Login = () => {
               <input
                 id="email"
                 type="email"
-                className={`input pl-10 ${errors.email ? 'border-error' : ''}`}
+                className={`input-glass pl-10 ${errors.email ? 'border-error' : ''}`}
                 placeholder="Your email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -89,7 +90,7 @@ const Login = () => {
               <input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
-                className={`input pl-10 ${errors.password ? 'border-error' : ''}`}
+                className={`input-glass pl-10 ${errors.password ? 'border-error' : ''}`}
                 placeholder="Your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -114,7 +115,7 @@ const Login = () => {
           {/* Login Button */}
           <button
             type="submit"
-            className="btn btn-primary w-full mb-4"
+            className="btn btn-primary w-full mb-4 btn-glow"
             disabled={isLoading}
           >
             {isLoading ? (

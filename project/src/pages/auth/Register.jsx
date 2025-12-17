@@ -16,7 +16,7 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const { register } = useAuth();
 
   const handleChange = (e) => {
@@ -26,48 +26,48 @@ const Register = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.name) {
       newErrors.name = 'Name is required';
     }
-    
+
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
     }
-    
+
     if (!formData.phone) {
       newErrors.phone = 'Phone number is required';
     } else if (!/^\+?[0-9]{10,15}$/.test(formData.phone.replace(/\s/g, ''))) {
       newErrors.phone = 'Phone number is invalid';
     }
-    
+
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 8) {
       newErrors.password = 'Password must be at least 8 characters';
     }
-    
+
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = 'Please confirm your password';
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
       await register(formData);
       // Navigation is handled in the auth context
@@ -79,10 +79,11 @@ const Register = () => {
   };
 
   return (
-    <div className="w-full card slide-up">
-      <div className="card-body">
-        <h2 className="text-2xl font-bold text-white mb-6">Create an Account</h2>
-        
+    <div className="w-full card glass-panel slide-up max-w-md mx-auto">
+      <div className="p-8">
+        <h2 className="text-3xl font-bold text-white mb-2 text-center">Create an Account</h2>
+        <p className="text-dark-400 text-center mb-8">Join our community today</p>
+
         <form onSubmit={handleSubmit}>
           {/* Name Input */}
           <div className="mb-4">
@@ -94,7 +95,7 @@ const Register = () => {
                 id="name"
                 name="name"
                 type="text"
-                className={`input pl-10 ${errors.name ? 'border-error' : ''}`}
+                className={`input-glass pl-10 ${errors.name ? 'border-error' : ''}`}
                 placeholder="Your full name"
                 value={formData.name}
                 onChange={handleChange}
@@ -119,7 +120,7 @@ const Register = () => {
                 id="email"
                 name="email"
                 type="email"
-                className={`input pl-10 ${errors.email ? 'border-error' : ''}`}
+                className={`input-glass pl-10 ${errors.email ? 'border-error' : ''}`}
                 placeholder="Your email address"
                 value={formData.email}
                 onChange={handleChange}
@@ -144,7 +145,7 @@ const Register = () => {
                 id="phone"
                 name="phone"
                 type="tel"
-                className={`input pl-10 ${errors.phone ? 'border-error' : ''}`}
+                className={`input-glass pl-10 ${errors.phone ? 'border-error' : ''}`}
                 placeholder="+250 7XX XXX XXX"
                 value={formData.phone}
                 onChange={handleChange}
@@ -169,7 +170,7 @@ const Register = () => {
                 id="password"
                 name="password"
                 type={showPassword ? 'text' : 'password'}
-                className={`input pl-10 ${errors.password ? 'border-error' : ''}`}
+                className={`input-glass pl-10 ${errors.password ? 'border-error' : ''}`}
                 placeholder="Create a password"
                 value={formData.password}
                 onChange={handleChange}
@@ -201,7 +202,7 @@ const Register = () => {
                 id="confirmPassword"
                 name="confirmPassword"
                 type={showConfirmPassword ? 'text' : 'password'}
-                className={`input pl-10 ${errors.confirmPassword ? 'border-error' : ''}`}
+                className={`input-glass pl-10 ${errors.confirmPassword ? 'border-error' : ''}`}
                 placeholder="Confirm your password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
@@ -231,18 +232,16 @@ const Register = () => {
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                className={`btn ${
-                  formData.role === 'RIDER' ? 'btn-primary' : 'btn-secondary'
-                }`}
+                className={`btn ${formData.role === 'RIDER' ? 'btn-primary' : 'btn-secondary'
+                  }`}
                 onClick={() => setFormData(prev => ({ ...prev, role: 'RIDER' }))}
               >
                 Book Rides
               </button>
               <button
                 type="button"
-                className={`btn ${
-                  formData.role === 'DRIVER' ? 'btn-primary' : 'btn-secondary'
-                }`}
+                className={`btn ${formData.role === 'DRIVER' ? 'btn-primary' : 'btn-secondary'
+                  }`}
                 onClick={() => setFormData(prev => ({ ...prev, role: 'DRIVER' }))}
               >
                 Drive & Earn
@@ -253,7 +252,7 @@ const Register = () => {
           {/* Register Button */}
           <button
             type="submit"
-            className="btn btn-primary w-full mb-4"
+            className="btn btn-primary w-full mb-4 btn-glow"
             disabled={isLoading}
           >
             {isLoading ? (

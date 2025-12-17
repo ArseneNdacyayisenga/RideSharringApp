@@ -5,8 +5,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { rideService } from '../../services/rideService';
 import { paymentService } from '../../services/paymentService';
 import { motion } from 'framer-motion';
-import { 
-  Map, Search, MapPin, Navigation, Car, Clock, CreditCard, 
+import {
+  Map, Search, MapPin, Navigation, Car, Clock, CreditCard,
   ChevronDown, ChevronsUpDown, Check, X, ArrowRight, User, Users, Phone, ChevronRight
 } from 'lucide-react';
 
@@ -104,7 +104,7 @@ const BookRide = () => {
   // Filter locations based on search term
   const filterLocations = (searchTerm) => {
     if (!searchTerm) return [];
-    return popularLocations.filter(location => 
+    return popularLocations.filter(location =>
       location.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
   };
@@ -157,29 +157,21 @@ const BookRide = () => {
     if (!selectedPaymentMethod || isBooking) return;
     setIsBooking(true);
     try {
-      const response = await fetch('http://localhost:8081/api/rides/book', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          riderId: user?.id,
-          pickupLocation,
-          dropoffLocation,
-          pickupLatitude: pickupCoords?.lat,
-          pickupLongitude: pickupCoords?.lng,
-          dropoffLatitude: dropoffCoords?.lat,
-          dropoffLongitude: dropoffCoords?.lng,
-          rideTypeId: selectedRideType.id,
-          paymentMethodId: selectedPaymentMethod.id,
-          estimatedFare: estimatedFare,
-          distance,
-          duration
-        }),
+      const response = await rideService.bookRide({
+        riderId: user?.id,
+        pickupLocation,
+        dropoffLocation,
+        pickupLatitude: pickupCoords?.lat,
+        pickupLongitude: pickupCoords?.lng,
+        dropoffLatitude: dropoffCoords?.lat,
+        dropoffLongitude: dropoffCoords?.lng,
+        rideTypeId: selectedRideType.id,
+        paymentMethodId: selectedPaymentMethod.id,
+        estimatedFare: estimatedFare,
+        distance,
+        duration
       });
-      if (!response.ok) throw new Error('Booking failed');
-      const data = await response.json();
-      setBookingDetails(data);
+      setBookingDetails(response);
       setBookingStep(3);
     } catch (error) {
       console.error('Error confirming booking:', error);
@@ -188,7 +180,7 @@ const BookRide = () => {
       setIsBooking(false);
     }
   };
-  
+
 
   // Handle booking completion
   const handleBookingComplete = () => {
@@ -234,7 +226,7 @@ const BookRide = () => {
           >
             {/* Pickup Marker */}
             {pickupCoords && (
-              <Marker 
+              <Marker
                 position={pickupCoords}
                 icon={{
                   url: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%238b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
@@ -243,10 +235,10 @@ const BookRide = () => {
                 }}
               />
             )}
-            
+
             {/* Dropoff Marker */}
             {dropoffCoords && (
-              <Marker 
+              <Marker
                 position={dropoffCoords}
                 icon={{
                   url: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2310b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
@@ -255,7 +247,7 @@ const BookRide = () => {
                 }}
               />
             )}
-            
+
             {/* Directions */}
             {pickupCoords && dropoffCoords && !directions && (
               <DirectionsService
@@ -267,7 +259,7 @@ const BookRide = () => {
                 callback={handleDirectionsResponse}
               />
             )}
-            
+
             {directions && (
               <DirectionsRenderer
                 options={{
@@ -283,9 +275,9 @@ const BookRide = () => {
             )}
           </GoogleMap>
         </LoadScript>
-        
+
         {/* Map Control Button */}
-        <button 
+        <button
           className="absolute bottom-4 right-4 bg-dark-800 p-3 rounded-full shadow-lg z-10 text-white"
           onClick={() => {
             if (mapRef.current) {
@@ -304,18 +296,18 @@ const BookRide = () => {
           <Navigation size={20} />
         </button>
       </div>
-      
+
       {/* Booking Panel */}
-      <div className="h-1/2 md:h-full md:w-1/3 bg-dark-900 overflow-y-auto">
+      <div className="h-1/2 md:h-full md:w-1/3 bg-dark-900/95 backdrop-blur-xl overflow-y-auto border-l border-white/5">
         <div className="p-4 md:p-6">
           <div className="flex items-center mb-6">
             <Map className="text-primary-500 mr-2" size={24} />
             <h2 className="text-xl font-bold text-white">Book a Ride</h2>
           </div>
-          
+
           {bookingComplete ? (
             /* Booking Confirmation */
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               className="text-center"
@@ -325,13 +317,13 @@ const BookRide = () => {
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Ride Booked Successfully!</h3>
               <p className="text-dark-400 mb-6">We're searching for drivers near you</p>
-              
-              <div className="card bg-dark-800 p-4 mb-6">
+
+              <div className="card glass-panel p-4 mb-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="text-white font-medium">Estimated arrival</div>
                   <div className="text-accent-500 font-bold">{bookingDetails.estimatedArrival}</div>
                 </div>
-                
+
                 <div className="flex flex-col space-y-4 mb-4">
                   <div className="flex items-start">
                     <div className="mt-1 mr-3">
@@ -352,7 +344,7 @@ const BookRide = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="border-t border-dark-700 pt-4">
                   <div className="flex justify-between text-dark-400 text-sm">
                     <span>Ride ID</span>
@@ -364,8 +356,8 @@ const BookRide = () => {
                   </div>
                 </div>
               </div>
-              
-              <button 
+
+              <button
                 className="btn btn-primary w-full"
                 onClick={handleBookingComplete}
               >
@@ -385,7 +377,7 @@ const BookRide = () => {
                     <input
                       ref={pickupInputRef}
                       type="text"
-                      className="input pl-10"
+                      className="input-glass pl-10"
                       placeholder="Enter pickup location"
                       value={pickupLocation}
                       onChange={(e) => {
@@ -408,7 +400,7 @@ const BookRide = () => {
                       </button>
                     )}
                   </div>
-                  
+
                   {/* Pickup Suggestions */}
                   {showPickupSuggestions && pickupLocation && (
                     <div className="absolute z-10 mt-1 w-full bg-dark-800 border border-dark-700 rounded-lg shadow-lg max-h-48 overflow-y-auto">
@@ -429,7 +421,7 @@ const BookRide = () => {
                     </div>
                   )}
                 </div>
-                
+
                 {/* Dropoff Location */}
                 <div className="relative">
                   <label className="block text-sm font-medium text-dark-400 mb-1">
@@ -439,7 +431,7 @@ const BookRide = () => {
                     <input
                       ref={dropoffInputRef}
                       type="text"
-                      className="input pl-10"
+                      className="input-glass pl-10"
                       placeholder="Enter dropoff location"
                       value={dropoffLocation}
                       onChange={(e) => {
@@ -462,7 +454,7 @@ const BookRide = () => {
                       </button>
                     )}
                   </div>
-                  
+
                   {/* Dropoff Suggestions */}
                   {showDropoffSuggestions && dropoffLocation && (
                     <div className="absolute z-10 mt-1 w-full bg-dark-800 border border-dark-700 rounded-lg shadow-lg max-h-48 overflow-y-auto">
@@ -484,7 +476,7 @@ const BookRide = () => {
                   )}
                 </div>
               </div>
-              
+
               {/* Popular Locations */}
               <div className="mb-6">
                 <h4 className="text-sm font-medium text-dark-400 mb-2">Popular Locations</h4>
@@ -506,11 +498,11 @@ const BookRide = () => {
                   ))}
                 </div>
               </div>
-              
+
               {/* Ride Information */}
               {directions && (
                 <div className="mb-6">
-                  <div className="card bg-dark-800 p-4">
+                  <div className="card glass-panel p-4">
                     <div className="grid grid-cols-3 gap-3 mb-4">
                       <div>
                         <p className="text-dark-400 text-xs">Distance</p>
@@ -528,7 +520,7 @@ const BookRide = () => {
                   </div>
                 </div>
               )}
-              
+
               {/* Ride Type Selection */}
               <div className="mb-6">
                 <h4 className="text-sm font-medium text-dark-400 mb-2">Select Ride Type</h4>
@@ -536,17 +528,15 @@ const BookRide = () => {
                   {rideTypes.map((type) => (
                     <button
                       key={type.id}
-                      className={`w-full flex items-center justify-between p-3 rounded-lg border ${
-                        selectedRideType.id === type.id
-                          ? 'border-primary-500 bg-primary-600/10'
-                          : 'border-dark-700 bg-dark-800 hover:bg-dark-750'
-                      }`}
+                      className={`w-full flex items-center justify-between p-3 rounded-lg border ${selectedRideType.id === type.id
+                        ? 'border-primary-500 bg-primary-600/10'
+                        : 'border-dark-700 bg-dark-800 hover:bg-dark-750'
+                        }`}
                       onClick={() => setSelectedRideType(type)}
                     >
                       <div className="flex items-center">
-                        <div className={`p-2 rounded-lg ${
-                          selectedRideType.id === type.id ? 'bg-primary-600/20 text-primary-500' : 'bg-dark-700 text-dark-400'
-                        }`}>
+                        <div className={`p-2 rounded-lg ${selectedRideType.id === type.id ? 'bg-primary-600/20 text-primary-500' : 'bg-dark-700 text-dark-400'
+                          }`}>
                           {type.icon}
                         </div>
                         <div className="ml-3 text-left">
@@ -570,7 +560,7 @@ const BookRide = () => {
                   ))}
                 </div>
               </div>
-              
+
               {/* Continue Button */}
               <button
                 className="btn btn-primary w-full"
@@ -590,10 +580,10 @@ const BookRide = () => {
                 <ArrowRight className="transform rotate-180 mr-1" size={16} />
                 <span>Back to locations</span>
               </button>
-              
-              <div className="card bg-dark-800 p-4 mb-6">
+
+              <div className="card glass-panel p-4 mb-6">
                 <h3 className="font-medium text-white mb-4">Ride Summary</h3>
-                
+
                 <div className="flex flex-col space-y-4 mb-4">
                   <div className="flex items-start">
                     <div className="mt-1 mr-3">
@@ -614,7 +604,7 @@ const BookRide = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="border-t border-dark-700 pt-4">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center">
@@ -623,7 +613,7 @@ const BookRide = () => {
                     </div>
                     <span className="text-dark-400">{distance.toFixed(1)} km • {duration} min</span>
                   </div>
-                  
+
                   <div className="space-y-1 text-sm mb-4">
                     <div className="flex justify-between">
                       <span className="text-dark-400">Base fare</span>
@@ -650,7 +640,7 @@ const BookRide = () => {
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="flex justify-between font-medium border-t border-dark-700 pt-3">
                     <span>Total fare</span>
                     <span className="text-white text-lg">
@@ -659,33 +649,30 @@ const BookRide = () => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Payment Method Selection */}
               <div className="mb-6">
                 <h4 className="text-sm font-medium text-dark-400 mb-2">Payment Method</h4>
-                
+
                 <div className="space-y-2">
                   {paymentMethods.map((method) => (
                     <button
                       key={method.id}
-                      className={`w-full flex items-center justify-between p-3 rounded-lg border ${
-                        selectedPaymentMethod?.id === method.id
-                          ? 'border-primary-500 bg-primary-600/10'
-                          : 'border-dark-700 bg-dark-800 hover:bg-dark-750'
-                      }`}
+                      className={`w-full flex items-center justify-between p-3 rounded-lg border ${selectedPaymentMethod?.id === method.id
+                        ? 'border-primary-500 bg-primary-600/10'
+                        : 'border-dark-700 bg-dark-800 hover:bg-dark-750'
+                        }`}
                       onClick={() => setSelectedPaymentMethod(method)}
                     >
                       <div className="flex items-center">
                         {method.type === 'CARD' ? (
-                          <div className={`p-2 rounded-lg ${
-                            selectedPaymentMethod?.id === method.id ? 'bg-primary-600/20 text-primary-500' : 'bg-dark-700 text-dark-400'
-                          }`}>
+                          <div className={`p-2 rounded-lg ${selectedPaymentMethod?.id === method.id ? 'bg-primary-600/20 text-primary-500' : 'bg-dark-700 text-dark-400'
+                            }`}>
                             <CreditCard size={20} />
                           </div>
                         ) : (
-                          <div className={`p-2 rounded-lg ${
-                            selectedPaymentMethod?.id === method.id ? 'bg-primary-600/20 text-primary-500' : 'bg-dark-700 text-dark-400'
-                          }`}>
+                          <div className={`p-2 rounded-lg ${selectedPaymentMethod?.id === method.id ? 'bg-primary-600/20 text-primary-500' : 'bg-dark-700 text-dark-400'
+                            }`}>
                             <Phone size={20} />
                           </div>
                         )}
@@ -703,7 +690,7 @@ const BookRide = () => {
                           )}
                         </div>
                       </div>
-                      
+
                       {selectedPaymentMethod?.id === method.id && (
                         <div className="text-primary-500">
                           <Check size={18} />
@@ -711,7 +698,7 @@ const BookRide = () => {
                       )}
                     </button>
                   ))}
-                  
+
                   <button
                     className="w-full flex items-center justify-between p-3 rounded-lg border border-dashed border-dark-700 hover:border-dark-600 bg-dark-800 hover:bg-dark-750"
                     onClick={() => navigate('/rider/payment')}
@@ -727,13 +714,13 @@ const BookRide = () => {
                     <ChevronRight className="text-dark-400" size={18} />
                   </button>
                 </div>
-                
+
                 <div className="flex items-center mt-4">
                   <div className="flex-1 h-px bg-dark-700"></div>
                   <span className="px-4 text-dark-400 text-sm">Or pay with</span>
                   <div className="flex-1 h-px bg-dark-700"></div>
                 </div>
-                
+
                 <button
                   className="w-full mt-4 p-3 rounded-lg border border-dark-700 bg-dark-800 hover:bg-dark-750 flex items-center justify-center"
                   onClick={() => alert('Wallet payment selected')}
@@ -741,10 +728,10 @@ const BookRide = () => {
                   <span className="text-white font-medium">Wallet Balance ({walletBalance.toLocaleString()} RWF)</span>
                 </button>
               </div>
-              
+
               {/* Book Ride Button */}
               <button
-                className="btn btn-primary w-full"
+                className="btn btn-primary w-full btn-glow"
                 disabled={isBooking || !selectedPaymentMethod}
                 onClick={confirmBooking}
               >
