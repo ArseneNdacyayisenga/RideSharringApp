@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8081/api/auth';
+const API_BASE_URL = '/api/auth';
 
 export const authService = {
   // ===== LOGIN =====
@@ -15,7 +15,7 @@ export const authService = {
         }
       );
 
-      const { token, user, requiresTwoFactor } = response.data;
+      const { token, user, driver, requiresTwoFactor } = response.data;
 
       if (requiresTwoFactor) {
         return { requiresTwoFactor };
@@ -27,8 +27,11 @@ export const authService = {
 
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
+      if (driver) {
+        localStorage.setItem('driver', JSON.stringify(driver));
+      }
 
-      return { token, user };
+      return { token, user, driver };
     } catch (error) {
       console.error('Login error:', error.response || error);
       throw new Error(error.response?.data?.message || 'Login failed');
@@ -47,10 +50,13 @@ export const authService = {
         }
       );
 
-      const { token, user } = response.data;
+      const { token, user, driver } = response.data;
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
-      return { token, user };
+      if (driver) {
+        localStorage.setItem('driver', JSON.stringify(driver));
+      }
+      return { token, user, driver };
     } catch (error) {
       console.error('2FA verification error:', error.response || error);
       throw new Error(error.response?.data?.message || '2FA verification failed');

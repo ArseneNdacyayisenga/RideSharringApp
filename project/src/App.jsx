@@ -102,7 +102,7 @@ function App() {
           path="/driver/dashboard"
           element={
             <ProtectedRoute user={user} allowedRole="DRIVER">
-              <DriverDashboard />
+              <DriverDashboard driverId={user?.driver?.id} />
             </ProtectedRoute>
           }
         />

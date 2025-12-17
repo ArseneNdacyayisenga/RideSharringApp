@@ -23,7 +23,7 @@ function DriverDashboard({ driverId }) {
         // Fetch ride history
         const history = await rideService.getRideHistory('DRIVER', driverId, 0, 10);
         const completedRides = history.filter(r => r.status === 'COMPLETED');
-        const totalEarnings = completedRides.reduce((sum, r) => sum + r.fare, 0);
+        const totalEarnings = completedRides.reduce((sum, r) => sum + (r.estimatedFare || 0), 0);
         const avgRating = completedRides.length
           ? completedRides.reduce((sum, r) => sum + (r.rating || 0), 0) / completedRides.length
           : 0;
@@ -77,14 +77,12 @@ function DriverDashboard({ driverId }) {
           <button
             onClick={toggleAvailability}
             disabled={loading || available === null}
-            className={`w-14 h-7 flex items-center rounded-full p-1 transition-colors duration-300 focus:outline-none ${
-              available ? 'bg-green-500' : 'bg-gray-300'
-            }`}
+            className={`w-14 h-7 flex items-center rounded-full p-1 transition-colors duration-300 focus:outline-none ${available ? 'bg-green-500' : 'bg-gray-300'
+              }`}
           >
             <div
-              className={`bg-white w-5 h-5 rounded-full shadow transform transition-transform duration-300 ${
-                available ? 'translate-x-7' : 'translate-x-0'
-              }`}
+              className={`bg-white w-5 h-5 rounded-full shadow transform transition-transform duration-300 ${available ? 'translate-x-7' : 'translate-x-0'
+                }`}
             ></div>
           </button>
         </div>
@@ -100,8 +98,8 @@ function DriverDashboard({ driverId }) {
         <div className="mt-8 bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Current Ride</h2>
           <p className="font-medium text-gray-800">{activeRide.description}</p>
-          <p className="text-sm text-gray-500">{activeRide.pickup} → {activeRide.dropoff}</p>
-          <p className="text-sm text-gray-500">Fare: RWF {activeRide.fare}</p>
+          <p className="text-sm text-gray-500">{activeRide.pickupLocation} → {activeRide.dropoffLocation}</p>
+          <p className="text-sm text-gray-500">Fare: RWF {activeRide.estimatedFare}</p>
         </div>
       )}
 
@@ -113,15 +111,14 @@ function DriverDashboard({ driverId }) {
               activities.map((ride) => (
                 <div key={ride.id} className="flex items-center justify-between py-3 border-b">
                   <div>
-                    <p className="font-medium text-gray-800">{ride.description}</p>
-                    <p className="text-sm text-gray-500">{ride.timeAgo} • RWF {ride.fare}</p>
+                    <p className="font-medium text-gray-800">{ride.pickupLocation} → {ride.dropoffLocation}</p>
+                    <p className="text-sm text-gray-500">{new Date(ride.bookedAt).toLocaleDateString()} • RWF {ride.estimatedFare}</p>
                   </div>
                   <span
-                    className={`px-3 py-1 text-sm rounded-full ${
-                      ride.status === 'COMPLETED'
+                    className={`px-3 py-1 text-sm rounded-full ${ride.status === 'COMPLETED'
                         ? 'text-green-700 bg-green-100'
                         : 'text-yellow-700 bg-yellow-100'
-                    }`}
+                      }`}
                   >
                     {ride.status}
                   </span>

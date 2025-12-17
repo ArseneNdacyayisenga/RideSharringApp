@@ -46,6 +46,9 @@ public class AuthController {
     @Autowired
     private OtpService otpService;
 
+    // Simple in-memory token storage for demo purposes
+    private static final Map<String, String> tokenStore = new java.util.concurrent.ConcurrentHashMap<>();
+
     // ================= LOGIN =================
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
@@ -120,7 +123,9 @@ public class AuthController {
     }
 
     private String generateTokenForUser(User user) {
-        return "generated-token"; // replace with JWT later
+        String token = UUID.randomUUID().toString();
+        tokenStore.put(token, user.getEmail());
+        return token;
     }
 
     // ================= DRIVER PROFILE =================
@@ -139,6 +144,68 @@ public class AuthController {
         return driverRepository.findByPhone(user.getPhone())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    // ================= ME =================
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid token");
+        }
+        
+        String token = authHeader.substring(7);
+        String email = tokenStore.get(token);
+        
+        if (email == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        }
+        
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+        }
+
+        User user = userOpt.get();
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", user.getId());
+        response.put("name", user.getName());
+        response.put("email", user.getEmail());
+        response.put("role", user.getRole());
+        response.put("phone", user.getPhone());
+        
+        if (user.getRole() == User.Role.DRIVER) {
+            driverRepository.findByPhone(user.getPhone())
+                    .ifPresent(driver -> response.put("driver", driver));
+        }
+        
+        return ResponseEntity.ok(response);
+    }
+
+    // ================= RESET PASSWORD =================
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
+        String token = request.get("token");
+        String newPassword = request.get("newPassword");
+        
+        Optional<PasswordResetToken> tokenOpt = passwordResetTokenRepository.findByToken(token);
+        
+        if (tokenOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("Invalid token");
+        }
+        
+        PasswordResetToken resetToken = tokenOpt.get();
+        if (resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            return ResponseEntity.badRequest().body("Token expired");
+        }
+        
+        User user = resetToken.getUser();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        
+        // Clean up token
+        passwordResetTokenRepository.delete(resetToken);
+        
+        return ResponseEntity.ok(Map.of("message", "Password reset successfully"));
     }
 
     // ================= REGISTER =================

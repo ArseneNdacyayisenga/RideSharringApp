@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
-      setUser(response.user);
+      setUser({ ...response.user, driver: response.driver });
       toast.success('Login successful!');
 
       // Navigate based on role
@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }) => {
 
       const response = await authService.verifyTwoFactor(tempEmail, code);
 
-      setUser(response.user);
+      setUser({ ...response.user, driver: response.driver });
       setNeedsTwoFactor(false);
       setTempEmail('');
 

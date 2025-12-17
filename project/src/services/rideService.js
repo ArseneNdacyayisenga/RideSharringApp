@@ -1,4 +1,4 @@
-const API_BASE_URL = `${import.meta.env.VITE_API_URL}/api/rides`;
+const API_BASE_URL = '/api/rides';
 
 const request = async (url, options = {}) => {
   const response = await fetch(url, {
@@ -14,7 +14,7 @@ const request = async (url, options = {}) => {
     let errorMessage = 'Request failed';
     try {
       errorMessage = await response.text();
-    } catch (_) {}
+    } catch (_) { }
     throw new Error(errorMessage);
   }
 

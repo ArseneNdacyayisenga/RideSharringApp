@@ -9,27 +9,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import { Line, Bar } from 'react-chartjs-2';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Tooltip,
-  Legend
-);
 
 const RiderDashboard = () => {
   const { user } = useAuth();
@@ -95,35 +75,8 @@ const RiderDashboard = () => {
     }
   };
 
-  const monthlyRidesData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-    datasets: [
-      {
-        data: [4, 6, 8, 5, 12, 9],
-        tension: 0.4,
-        fill: true,
-      },
-    ],
-  };
+  const totalSpending = recentRides.reduce((acc, ride) => acc + (ride.estimatedFare || 0), 0);
 
-  const weeklySpendingData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    datasets: [
-      {
-        data: [2500, 3500, 0, 5000, 2800, 6000, 4200],
-        borderRadius: 6,
-      },
-    ],
-  };
-
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: { y: { beginAtZero: true } },
-  };
-
-  const totalSpending = weeklySpendingData.datasets[0].data.reduce((a, b) => a + b, 0);
 
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto">
@@ -179,14 +132,36 @@ const RiderDashboard = () => {
         </div>
       </div>
 
-      {/* Charts */}
+      {/* Charts (Removed as backend does not strictly support analytics yet) */}
+      {/* 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="card p-4 h-64">
-          <Line data={monthlyRidesData} options={chartOptions} />
+           Placeholder for Monthly Rides 
         </div>
         <div className="card p-4 h-64">
-          <Bar data={weeklySpendingData} options={chartOptions} />
+           Placeholder for Weekly Spending 
         </div>
+      </div>
+      */}
+
+      {/* Recent Activity List Replacement for Charts */}
+      <div className="card mb-8 p-6">
+        <h3 className="text-xl font-semibold mb-4 text-white">Recent Activity</h3>
+        {recentRides.length > 0 ? (
+          <div className="space-y-4">
+            {recentRides.map(ride => (
+              <div key={ride.id} className="flex justify-between items-center border-b border-gray-700 pb-2">
+                <div>
+                  <p className="text-white">{ride.pickupLocation} → {ride.dropoffLocation}</p>
+                  <p className="text-sm text-gray-400">{new Date(ride.bookedAt).toLocaleDateString()}</p>
+                </div>
+                <span className="text-primary-400 font-bold">{ride.estimatedFare} RWF</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-400">No recent activity.</p>
+        )}
       </div>
 
       {/* Search */}
