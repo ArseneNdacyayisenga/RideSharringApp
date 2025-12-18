@@ -20,16 +20,24 @@ public class RideService {
     @Autowired
     private DriverRepository driverRepository;
 
+    @Autowired
+    private com.example.backend.repository.UserRepository userRepository;
 
     // RIDE LIFECYCLE
 
     public Ride bookRide(Ride ride) {
-        if (ride.getRiderId() == null) throw new IllegalArgumentException("Rider ID is required");
-        if (ride.getStatus() == null) ride.setStatus("PENDING");
-        if (ride.getBookedAt() == null) ride.setBookedAt(LocalDateTime.now());
-        if (ride.getEstimatedFare() == null) throw new IllegalArgumentException("Estimated fare is required");
-        if (ride.getDistance() == null) throw new IllegalArgumentException("Distance is required");
-        if (ride.getDuration() == null) throw new IllegalArgumentException("Duration is required");
+        if (ride.getRiderId() == null)
+            throw new IllegalArgumentException("Rider ID is required");
+        if (ride.getStatus() == null)
+            ride.setStatus("PENDING");
+        if (ride.getBookedAt() == null)
+            ride.setBookedAt(LocalDateTime.now());
+        if (ride.getEstimatedFare() == null)
+            throw new IllegalArgumentException("Estimated fare is required");
+        if (ride.getDistance() == null)
+            throw new IllegalArgumentException("Distance is required");
+        if (ride.getDuration() == null)
+            throw new IllegalArgumentException("Duration is required");
         return rideRepository.save(ride);
     }
 
@@ -75,29 +83,63 @@ public class RideService {
     // RIDE FETCHING
 
     public List<Ride> getRideHistory(String role, Long userId) {
-        if ("rider".equalsIgnoreCase(role)) return rideRepository.findByRiderId(userId);
-        else if ("driver".equalsIgnoreCase(role)) return rideRepository.findByDriverId(userId);
-        else throw new RuntimeException("Invalid role");
+        List<Ride> rides;
+        if ("rider".equalsIgnoreCase(role))
+            rides = rideRepository.findByRiderId(userId);
+        else if ("driver".equalsIgnoreCase(role))
+            rides = rideRepository.findByDriverId(userId);
+        else
+            throw new RuntimeException("Invalid role");
+
+        rides.forEach(this::populateRideDetails);
+        // Sort by BookedAt Descending (Most Recent First)
+        rides.sort((r1, r2) -> {
+            if (r1.getBookedAt() == null)
+                return 1;
+            if (r2.getBookedAt() == null)
+                return -1;
+            return r2.getBookedAt().compareTo(r1.getBookedAt());
+        });
+
+        return rides;
     }
 
     public Ride getActiveRide(String role, Long userId) {
+        Ride ride = null;
         if ("rider".equalsIgnoreCase(role)) {
-            return rideRepository.findFirstByRiderIdAndStatusIn(userId, List.of("PENDING", "ACCEPTED", "STARTED"))
+            ride = rideRepository.findFirstByRiderIdAndStatusIn(userId, List.of("PENDING", "ACCEPTED", "STARTED"))
                     .orElse(null);
         } else if ("driver".equalsIgnoreCase(role)) {
-            return rideRepository.findFirstByDriverIdAndStatusIn(userId, List.of("ACCEPTED", "STARTED"))
+            ride = rideRepository.findFirstByDriverIdAndStatusIn(userId, List.of("ACCEPTED", "STARTED"))
                     .orElse(null);
         } else {
             throw new RuntimeException("Invalid role");
         }
+
+        if (ride != null)
+            populateRideDetails(ride);
+        return ride;
+    }
+
+    // Helper to populate transient fields
+    private void populateRideDetails(Ride ride) {
+        if (ride.getDriverId() != null) {
+            driverRepository.findById(ride.getDriverId()).ifPresent(ride::setDriver);
+        }
+        if (ride.getRiderId() != null) {
+            userRepository.findById(ride.getRiderId()).ifPresent(ride::setRider);
+        }
     }
 
     public List<Ride> getAvailableRides() {
-        return rideRepository.findByStatus("PENDING");
+        List<Ride> rides = rideRepository.findByStatus("PENDING");
+        rides.forEach(this::populateRideDetails);
+        return rides;
     }
 
     public List<Ride> searchRides(String query) {
-        return rideRepository.findByPickupLocationContainingIgnoreCaseOrDropoffLocationContainingIgnoreCase(query, query);
+        return rideRepository.findByPickupLocationContainingIgnoreCaseOrDropoffLocationContainingIgnoreCase(query,
+                query);
     }
 
     public List<Ride> getAllRides() {
@@ -121,7 +163,7 @@ public class RideService {
     public void setDriverAvailability(Long driverId, boolean available) {
         Driver driver = driverRepository.findById(driverId)
                 .orElseThrow(() -> new RuntimeException("Driver not found"));
-        driver.setAvailable(available);  // toggle on/off
+        driver.setAvailable(available); // toggle on/off
         driverRepository.save(driver);
     }
 }

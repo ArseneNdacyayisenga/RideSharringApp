@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { rideService } from '../../services/rideService';
 import ReactPaginate from 'react-paginate';
-import { 
+import {
   Car, Clock, MapPin, CreditCard, Phone, Filter, Search,
   ChevronLeft, ChevronRight, AlertCircle, Star, MoreHorizontal,
   Calendar, ArrowUpDown, Download, X, ArrowRight
@@ -22,30 +22,40 @@ const RideHistory = () => {
 
   // Fetch rides on component mount and when filters change
   useEffect(() => {
+    console.log("RideHistory mounted/updated. Filters:", { currentPage, searchTerm, statusFilter, dateFilter });
     const fetchRides = async () => {
       setIsLoading(true);
+      console.log("Fetching rides...");
       try {
         const response = await rideService.getRideHistory('RIDER', currentPage, 10);
-        
+        console.log("Ride history response:", response);
+
+        if (!response || !response.content) {
+          console.warn("Invalid response structure:", response);
+          setRides([]);
+          setTotalPages(0);
+          return;
+        }
+
         // Apply filters (this would normally be handled on the server)
         let filteredRides = response.content;
-        
+
         if (searchTerm) {
-          filteredRides = filteredRides.filter(ride => 
+          filteredRides = filteredRides.filter(ride =>
             ride.pickupLocation.toLowerCase().includes(searchTerm.toLowerCase()) ||
             ride.dropoffLocation.toLowerCase().includes(searchTerm.toLowerCase()) ||
             (ride.driver && ride.driver.name.toLowerCase().includes(searchTerm.toLowerCase()))
           );
         }
-        
+
         if (statusFilter !== 'ALL') {
           filteredRides = filteredRides.filter(ride => ride.status === statusFilter);
         }
-        
+
         if (dateFilter !== 'ALL') {
           const now = new Date();
           const filterDate = new Date();
-          
+
           switch (dateFilter) {
             case 'TODAY':
               filterDate.setHours(0, 0, 0, 0);
@@ -65,13 +75,15 @@ const RideHistory = () => {
               break;
           }
         }
-        
+
         setRides(filteredRides);
         setTotalPages(Math.ceil(filteredRides.length / 10));
+        console.log("Rides state updated:", filteredRides);
       } catch (error) {
         console.error('Error fetching ride history:', error);
       } finally {
         setIsLoading(false);
+        console.log("Loading set to false");
       }
     };
 
@@ -116,7 +128,7 @@ const RideHistory = () => {
   // Render payment method icon
   const renderPaymentMethodIcon = (method) => {
     if (!method) return null;
-    
+
     switch (method) {
       case 'CARD':
         return <CreditCard size={16} className="text-dark-400" />;
@@ -134,7 +146,7 @@ const RideHistory = () => {
           <h1 className="text-2xl md:text-3xl font-bold text-white">Ride History</h1>
           <p className="text-dark-400">View and manage your past rides</p>
         </div>
-        
+
         <div className="mt-4 md:mt-0">
           <Link to="/rider/book" className="btn btn-primary">
             <Car size={18} />
@@ -166,10 +178,10 @@ const RideHistory = () => {
                 </button>
               )}
             </div>
-            
+
             {/* Filter Button (Mobile) */}
             <div className="md:hidden">
-              <button 
+              <button
                 className="btn btn-secondary w-full"
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
               >
@@ -182,7 +194,7 @@ const RideHistory = () => {
                 )}
               </button>
             </div>
-            
+
             {/* Desktop Filters */}
             <div className="hidden md:flex gap-4">
               <div className="w-48">
@@ -221,7 +233,7 @@ const RideHistory = () => {
               )}
             </div>
           </div>
-          
+
           {/* Mobile Filters */}
           {isFilterOpen && (
             <div className="mt-4 md:hidden border-t border-dark-700 pt-4 space-y-4">
@@ -294,7 +306,7 @@ const RideHistory = () => {
                 : "You haven't taken any rides yet"}
             </p>
             {searchTerm || statusFilter !== 'ALL' || dateFilter !== 'ALL' ? (
-              <button 
+              <button
                 className="btn btn-primary inline-flex"
                 onClick={clearFilters}
               >
@@ -333,11 +345,11 @@ const RideHistory = () => {
               </div>
               <div className="text-center">Actions</div>
             </div>
-            
+
             {/* Table Rows */}
             <div className="divide-y divide-dark-700">
               {rides.map((ride) => (
-                <div 
+                <div
                   key={ride.id}
                   className="grid md:grid-cols-5 gap-4 p-4 hover:bg-dark-750 transition-colors"
                 >
@@ -360,7 +372,7 @@ const RideHistory = () => {
                         {renderStatusBadge(ride.status)}
                       </div>
                     </div>
-                    
+
                     <div className="flex items-start mb-3">
                       <MapPin size={16} className="text-primary-500 mr-2 mt-1 flex-shrink-0" />
                       <div>
@@ -369,7 +381,7 @@ const RideHistory = () => {
                         <p className="text-white font-medium">{ride.dropoffLocation}</p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center justify-between">
                       <div>
                         {ride.status === 'COMPLETED' ? (
@@ -393,7 +405,7 @@ const RideHistory = () => {
                       </button>
                     </div>
                   </div>
-                  
+
                   {/* Desktop View */}
                   <div className="hidden md:flex items-center text-white">
                     <Clock size={16} className="text-dark-400 mr-2" />
@@ -411,7 +423,7 @@ const RideHistory = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="hidden md:flex items-center">
                     <div>
                       <p className="text-white">{ride.pickupLocation}</p>
@@ -421,11 +433,11 @@ const RideHistory = () => {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="hidden md:flex items-center">
                     {renderStatusBadge(ride.status)}
                   </div>
-                  
+
                   <div className="hidden md:block">
                     {ride.status === 'COMPLETED' ? (
                       <div className="flex items-center">
@@ -440,7 +452,7 @@ const RideHistory = () => {
                       <p className="text-dark-400">-</p>
                     )}
                   </div>
-                  
+
                   <div className="hidden md:flex items-center justify-center">
                     <button
                       className="btn btn-secondary btn-sm"
@@ -484,14 +496,14 @@ const RideHistory = () => {
           <div className="card bg-dark-800 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 z-10 flex items-center justify-between p-4 bg-dark-800 border-b border-dark-700">
               <h3 className="text-lg font-medium text-white">Ride Details</h3>
-              <button 
+              <button
                 className="text-dark-400 hover:text-white"
                 onClick={() => setShowDetailModal(false)}
               >
                 <X size={20} />
               </button>
             </div>
-            
+
             <div className="p-4">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center">
@@ -510,7 +522,7 @@ const RideHistory = () => {
                   {renderStatusBadge(selectedRide.status)}
                 </div>
               </div>
-              
+
               <div className="card bg-dark-700 p-4 mb-6">
                 <div className="flex flex-col space-y-4">
                   <div className="flex items-start">
@@ -533,7 +545,7 @@ const RideHistory = () => {
                   </div>
                 </div>
               </div>
-              
+
               {selectedRide.status === 'COMPLETED' && (
                 <>
                   {/* Driver and Vehicle Info */}
@@ -542,7 +554,7 @@ const RideHistory = () => {
                       <div className="card bg-dark-700 p-4">
                         <h4 className="text-sm font-medium text-dark-400 mb-3">Driver</h4>
                         <div className="flex items-center">
-                          <img 
+                          <img
                             src={selectedRide.driver.profileImage}
                             alt={selectedRide.driver.name}
                             className="w-12 h-12 rounded-full object-cover mr-3"
@@ -556,7 +568,7 @@ const RideHistory = () => {
                           </div>
                         </div>
                       </div>
-                      
+
                       {selectedRide.vehicle && (
                         <div className="card bg-dark-700 p-4">
                           <h4 className="text-sm font-medium text-dark-400 mb-3">Vehicle</h4>
@@ -568,7 +580,7 @@ const RideHistory = () => {
                       )}
                     </div>
                   )}
-                  
+
                   {/* Ride Stats */}
                   <div className="grid grid-cols-3 gap-4 mb-6">
                     <div className="card bg-dark-700 p-3">
@@ -584,7 +596,7 @@ const RideHistory = () => {
                       <p className="text-white font-medium">{selectedRide.fare.toLocaleString()} RWF</p>
                     </div>
                   </div>
-                  
+
                   {/* Payment Details */}
                   <div className="card bg-dark-700 p-4 mb-6">
                     <h4 className="text-sm font-medium text-dark-400 mb-3">Payment Details</h4>
@@ -617,14 +629,14 @@ const RideHistory = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Rating */}
                   {selectedRide.rating && (
                     <div className="card bg-dark-700 p-4 mb-6">
                       <h4 className="text-sm font-medium text-dark-400 mb-3">Your Rating</h4>
                       <div className="flex items-center">
                         {[...Array(5)].map((_, i) => (
-                          <Star 
+                          <Star
                             key={i}
                             size={24}
                             className={i < selectedRide.rating ? 'text-warning' : 'text-dark-500'}
@@ -636,7 +648,7 @@ const RideHistory = () => {
                   )}
                 </>
               )}
-              
+
               {/* Cancelled or Pending Ride */}
               {selectedRide.status === 'CANCELLED' && (
                 <div className="card bg-dark-700 p-4 mb-6">
@@ -649,7 +661,7 @@ const RideHistory = () => {
                   </p>
                 </div>
               )}
-              
+
               {/* Actions */}
               <div className="flex flex-wrap gap-3 justify-end">
                 {selectedRide.status === 'COMPLETED' && (
@@ -658,7 +670,7 @@ const RideHistory = () => {
                     <span>Receipt</span>
                   </button>
                 )}
-                <button 
+                <button
                   className="btn btn-primary"
                   onClick={() => setShowDetailModal(false)}
                 >

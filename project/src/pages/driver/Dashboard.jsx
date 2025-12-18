@@ -112,12 +112,14 @@ function DriverDashboard({ driverId }) {
                 <div key={ride.id} className="flex items-center justify-between py-3 border-b">
                   <div>
                     <p className="font-medium text-gray-800">{ride.pickupLocation} → {ride.dropoffLocation}</p>
-                    <p className="text-sm text-gray-500">{new Date(ride.bookedAt).toLocaleDateString()} • RWF {ride.estimatedFare}</p>
+                    <p className="text-sm text-gray-500">
+                      {new Date(ride.bookedAt).toLocaleDateString()} • {ride.rider ? `Passenger: ${ride.rider.name}` : 'Unknown Rider'} • RWF {ride.estimatedFare}
+                    </p>
                   </div>
                   <span
                     className={`px-3 py-1 text-sm rounded-full ${ride.status === 'COMPLETED'
-                        ? 'text-green-700 bg-green-100'
-                        : 'text-yellow-700 bg-yellow-100'
+                      ? 'text-green-700 bg-green-100'
+                      : 'text-yellow-700 bg-yellow-100'
                       }`}
                   >
                     {ride.status}

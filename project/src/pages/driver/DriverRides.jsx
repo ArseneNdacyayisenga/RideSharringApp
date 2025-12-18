@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { rideService } from '../../services/rideService';
 import { useAuth } from '../../contexts/AuthContext';
-import { MapPin, Navigation, Clock, DollarSign } from 'lucide-react';
+import { MapPin, Navigation, Clock, Banknote } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 function DriverRides() {
@@ -81,10 +81,13 @@ function DriverRides() {
               <div className="p-6">
                 <div className="flex justify-between items-start mb-4">
                   <span className="badge badge-primary">New Request</span>
-                  <span className="text-success font-bold flex items-center">
-                    <DollarSign size={16} />
-                    {ride.estimatedFare?.toLocaleString()} RWF
-                  </span>
+                  <div className="flex flex-col items-end">
+                    <span className="text-success font-bold flex items-center gap-1">
+                      <Banknote size={16} />
+                      {ride.estimatedFare?.toLocaleString()} RWF
+                    </span>
+                    {ride.rider && <span className="text-xs text-gray-400 mt-1">Passenger: {ride.rider.name}</span>}
+                  </div>
                 </div>
 
                 <div className="space-y-4 mb-6">

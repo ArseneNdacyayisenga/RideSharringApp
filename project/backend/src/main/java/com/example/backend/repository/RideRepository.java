@@ -9,6 +9,7 @@ import java.util.Optional;
 public interface RideRepository extends JpaRepository<Ride, Long> {
 
     // Ride history for rider
+    // Ride history for rider
     List<Ride> findByRiderId(Long riderId);
 
     // Ride history for driver
@@ -23,7 +24,8 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     // List of available (pending) rides for driver to pick
     List<Ride> findByStatus(String status);
 
-    List<Ride> findByPickupLocationContainingIgnoreCaseOrDropoffLocationContainingIgnoreCase(String pickupLocation, String dropoffLocation);
+    List<Ride> findByPickupLocationContainingIgnoreCaseOrDropoffLocationContainingIgnoreCase(String pickupLocation,
+            String dropoffLocation);
 
     // Additional query methods can be defined here
 }

@@ -29,6 +29,14 @@ public class Ride {
     private Double distance;
     private Integer duration;
 
+    private String paymentMethod;
+
+    @Transient
+    private Driver driver;
+
+    @Transient
+    private User rider;
+
     // === Getters and Setters ===
 
     public Long getId() {
@@ -141,5 +149,29 @@ public class Ride {
 
     public void setDuration(Integer duration) {
         this.duration = duration;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public Driver getDriver() {
+        return driver;
+    }
+
+    public void setDriver(Driver driver) {
+        this.driver = driver;
+    }
+
+    public User getRider() {
+        return rider;
+    }
+
+    public void setRider(User rider) {
+        this.rider = rider;
     }
 }

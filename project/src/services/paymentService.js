@@ -29,6 +29,15 @@ const mockPaymentMethods = [
     provider: 'MTN',
     phoneNumber: '+250788123456',
     isDefault: false,
+  },
+  {
+    id: 'wallet',
+    type: 'WALLET',
+    brand: 'RwandaRide Wallet',
+    last4: '',
+    expiryMonth: 0,
+    expiryYear: 0,
+    isDefault: false,
   }
 ];
 
@@ -101,32 +110,32 @@ export const paymentService = {
     await delay(1000);
     return mockPaymentMethods;
   },
-  
+
   addPaymentMethod: async (paymentMethod) => {
     await delay(1500);
-    
+
     const newPaymentMethod = {
       id: 'new-' + Date.now(),
       ...paymentMethod,
       isDefault: false,
     };
-    
+
     return { success: true, paymentMethod: newPaymentMethod };
   },
-  
+
   removePaymentMethod: async (paymentMethodId) => {
     await delay(1000);
     return { success: true, message: 'Payment method removed successfully' };
   },
-  
+
   setDefaultPaymentMethod: async (paymentMethodId) => {
     await delay(800);
     return { success: true, message: 'Default payment method updated' };
   },
-  
+
   getTransactions: async (page = 0, size = 10) => {
     await delay(1000);
-    
+
     return {
       content: mockTransactions,
       totalElements: mockTransactions.length,
@@ -135,7 +144,7 @@ export const paymentService = {
       number: page,
     };
   },
-  
+
   getWalletBalance: async () => {
     await delay(500);
     return {
@@ -143,14 +152,14 @@ export const paymentService = {
       currency: 'RWF',
     };
   },
-  
+
   topUpWallet: async (amount, paymentMethodId) => {
     await delay(2000);
-    
+
     if (amount <= 0) {
       throw new Error('Amount must be greater than 0');
     }
-    
+
     return {
       success: true,
       transaction: {
@@ -165,18 +174,18 @@ export const paymentService = {
       newBalance: 15000 + amount,
     };
   },
-  
+
   withdrawFromWallet: async (amount, paymentMethodId) => {
     await delay(2000);
-    
+
     if (amount <= 0) {
       throw new Error('Amount must be greater than 0');
     }
-    
+
     if (amount > 15000) {
       throw new Error('Insufficient funds');
     }
-    
+
     return {
       success: true,
       transaction: {
