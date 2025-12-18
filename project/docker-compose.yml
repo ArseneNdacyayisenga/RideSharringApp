@@ -5,7 +5,7 @@ services:
     environment:
       POSTGRES_DB: rwanda_ride
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: shema
+      POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
     volumes:
@@ -21,16 +21,16 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/rwanda_ride
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=shema
-      # Email configuration
-      - SPRING_MAIL_HOST=smtp.gmail.com
-      - SPRING_MAIL_PORT=587
-      - SPRING_MAIL_USERNAME=your-email@gmail.com
-      - SPRING_MAIL_PASSWORD=your-app-password
-      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true
-      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      # Disable email for development
+      - SPRING_MAIL_HOST=localhost
+      - SPRING_MAIL_PORT=1025
+      - APP_EMAIL_ENABLED=false
     depends_on:
       - postgres
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
 
   frontend:
     build:
