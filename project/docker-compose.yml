@@ -1,11 +1,9 @@
-
-
 services:
   postgres:
     image: postgres:15
     container_name: rwanda_ride_db
     environment:
-      POSTGRES_DB: bestprogramming
+      POSTGRES_DB: rwanda_ride
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: shema
     ports:
@@ -14,22 +12,28 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   backend:
-    build: 
+    build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: rwanda_ride_backend
-    depends_on:
-      - postgres
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bestprogramming
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: shema
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
     ports:
       - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/rwanda_ride
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=shema
+      # Email configuration
+      - SPRING_MAIL_HOST=smtp.gmail.com
+      - SPRING_MAIL_PORT=587
+      - SPRING_MAIL_USERNAME=your-email@gmail.com
+      - SPRING_MAIL_PASSWORD=your-app-password
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
+    depends_on:
+      - postgres
 
   frontend:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     container_name: rwanda_ride_frontend
